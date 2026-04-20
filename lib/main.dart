@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sample/screens/mitigation.dart';
+import 'package:sample/screens/preferences.dart'; // Ensure this matches your path
 
 void main() {
   runApp(const MyApp());
@@ -14,12 +14,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        brightness: Brightness.dark,
+        brightness: Brightness.light, // Change to light for the Preferences UI
         textTheme: GoogleFonts.interTextTheme(
           Theme.of(context).textTheme,
         ),
       ),
-      home: const MitigationProtocolScreen(),
+      // Fix: Use the correct class name and remove 'const'
+      home: const PreferencesScreen(), 
     );
   }
 }
