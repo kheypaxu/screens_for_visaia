@@ -1,266 +1,283 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'detection_result.dart'; // Ensure this import matches your file structure
 
-class DetectionHistory extends StatefulWidget {
-  const DetectionHistory({super.key});
-
-  @override
-  State<DetectionHistory> createState() => _DetectionHistoryState();
+void main() {
+  runApp(const VerdantHarvestApp());
 }
 
-class _DetectionHistoryState extends State<DetectionHistory> {
-  final TextEditingController _searchController = TextEditingController();
-  DateTime? _selectedDate;
-
-  final List<Map<String, dynamic>> _allDetections = [
-    {
-      "name": "Fall Armyworm",
-      "stage": "LARVAE",
-      "field": "Corn Field #42 • Sector C",
-      "time": "10:42 AM",
-      "date": DateTime(2024, 10, 24)
-    },
-    {
-      "name": "Fall Armyworm",
-      "stage": "LARVAE",
-      "field": "Corn Field #42 • Sector C",
-      "time": "10:42 AM",
-      "date": DateTime(2024, 10, 24)
-    },
-    {
-      "name": "Fall Armyworm",
-      "stage": "LARVAE",
-      "field": "Corn Field #42 • Sector C",
-      "time": "10:42 AM",
-      "date": DateTime(2024, 10, 24)
-    },
-    {
-      "name": "Fall Armyworm",
-      "stage": "LARVAE",
-      "field": "Corn Field #42 • Sector C",
-      "time": "04:30 PM",
-      "date": DateTime(2024, 8, 15)
-    },
-  ];
-
-  List<Map<String, dynamic>> _filteredDetections = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _filteredDetections = _allDetections;
-  }
-
-  void _applyFilters() {
-    String keyword = _searchController.text.toLowerCase();
-    setState(() {
-      _filteredDetections = _allDetections.where((detection) {
-        bool matchesSearch = detection["name"]!.toLowerCase().contains(keyword) ||
-            detection["field"]!.toLowerCase().contains(keyword);
-        bool matchesDate = true;
-        if (_selectedDate != null) {
-          DateTime detDate = detection["date"] as DateTime;
-          matchesDate = detDate.year == _selectedDate!.year &&
-              detDate.month == _selectedDate!.month &&
-              detDate.day == _selectedDate!.day;
-        }
-        return matchesSearch && matchesDate;
-      }).toList();
-    });
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xFF8DBA60),
-              onPrimary: Color(0xFF102216),
-              surface: Color(0xFF1C2C22),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
-      _applyFilters();
-    }
-  }
-
-  String _formatDateHeader(DateTime date) {
-    final now = DateTime.now();
-    if (date.year == now.year && date.month == now.month && date.day == now.day) {
-      return "TODAY, ${DateFormat('MMM d').format(date).toUpperCase()}";
-    }
-    return DateFormat('MMM d, yyyy').format(date).toUpperCase();
-  }
+class VerdantHarvestApp extends StatelessWidget {
+  const VerdantHarvestApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const Color bgDark = Color(0xFF102216);
-    const Color primaryGreen = Color(0xFF8DBA60);
-    const Color greyText = Color(0xFF737673);
-    const Color white = Color(0xFFFFFFFF);
-    const Color cardBg = Color(0xFF1C2C22);
-    const Color accentGold = Color(0xFFCEA265);
-    const Color accuracyGreen = Color(0xFF13EC5B);
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        scaffoldBackgroundColor: const Color(0xFFF8FAF7),
+        fontFamily: 'SF Pro Display', // Standard system font or Roboto
+      ),
+      home: const AccountSecurityScreen(),
+    );
+  }
+}
 
+class AppColors {
+  static const Color background = Color(0xFFF8FAF7);
+  static const Color primaryGreen = Color(0xFF1D3305);
+  static const Color warningRed = Color(0xFFD32F2F);
+  static const Color criticalBadge = Color(0xFFFDE8E8);
+  static const Color textBody = Color(0xFF555555);
+  static const Color cardGrey1 = Color(0xFFF1F4F1);
+  static const Color cardGrey2 = Color(0xFFF0F2EF);
+}
+
+class AccountSecurityScreen extends StatelessWidget {
+  const AccountSecurityScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: bgDark,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: white),
-          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {},
         ),
-        title: const Text("Detection History", style: TextStyle(color: white, fontWeight: FontWeight.bold, fontSize: 22)),
-        centerTitle: true,
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (value) => _applyFilters(),
-              style: const TextStyle(color: white),
-              decoration: InputDecoration(
-                hintText: "Search fields, crops, or pests...",
-                hintStyle: const TextStyle(color: greyText),
-                prefixIcon: const Icon(Icons.search, color: greyText),
-                filled: true,
-                fillColor: Colors.white.withOpacity(0.05),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
-              ),
-            ),
+        title: const Text(
+          'Account Security',
+          style: TextStyle(
+            color: Color(0xFF1D3305),
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            // Progress Indicator
+            Row(
               children: [
-                ActionChip(
-                  backgroundColor: _selectedDate == null ? primaryGreen : accentGold,
-                  avatar: Icon(_selectedDate == null ? Icons.tune : Icons.calendar_today, size: 18, color: bgDark),
-                  label: Text(
-                    _selectedDate == null ? "All dates" : DateFormat('MMM d, yyyy').format(_selectedDate!),
-                    style: const TextStyle(color: bgDark, fontWeight: FontWeight.bold)
+                Container(
+                  height: 6,
+                  width: 60,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryGreen,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  onPressed: () => _selectDate(context),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                if (_selectedDate != null)
-                  IconButton(
-                    icon: const Icon(Icons.close, color: white, size: 20),
-                    onPressed: () {
-                      setState(() => _selectedDate = null);
-                      _applyFilters();
-                    },
-                  )
+                const SizedBox(width: 8),
+                Container(
+                  height: 6,
+                  width: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  'STEP 01 OF 02',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
+                    color: Colors.black.withOpacity(0.6),
+                  ),
+                ),
               ],
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Divider(color: greyText, thickness: 0.5),
-          ),
-          Expanded(
-            child: _filteredDetections.isNotEmpty
-                ? ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                    itemCount: _filteredDetections.length,
-                    itemBuilder: (context, index) {
-                      final item = _filteredDetections[index];
-                      final DateTime date = item['date'];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (index == 0 || (item['date'] as DateTime).day != (_filteredDetections[index - 1]['date'] as DateTime).day)
-                            _buildSectionHeader(_formatDateHeader(date), greyText),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => DetectionResult(data: item)),
-                              );
-                            },
-                            child: _buildDetectionCard(item['name'], item['stage'], item['field'], item['time'], cardBg, accuracyGreen, white, greyText, accentGold),
-                          ),
-                        ],
-                      );
-                    },
-                  )
-                : const Center(child: Text("No detections found", style: TextStyle(color: greyText))),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title, Color color) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15, top: 10),
-      child: Text(title, style: TextStyle(color: color, fontWeight: FontWeight.bold, letterSpacing: 1.1)),
-    );
-  }
-
-  Widget _buildDetectionCard(String name, String stage, String field, String time, Color cardBg, Color accuracyColor, Color white, Color grey, Color accentGold) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: grey.withOpacity(0.3)),
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              width: 90, height: 90, color: Colors.grey[800],
-              child: Image.asset('assets/images/faw.png', fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const Icon(Icons.bug_report, color: Colors.white24, size: 40)),
+            const SizedBox(height: 32),
+            // Critical Action Badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.criticalBadge,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: AppColors.warningRed, size: 16),
+                  SizedBox(width: 6),
+                  Text(
+                    'CRITICAL ACTION',
+                    style: TextStyle(
+                      color: AppColors.warningRed,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
+            const SizedBox(height: 24),
+            const Text(
+              "Before you go,\nlet's talk about\nyour harvest.",
+              style: TextStyle(
+                color: AppColors.primaryGreen,
+                fontSize: 42,
+                fontWeight: FontWeight.w900,
+                height: 1.1,
+                letterSpacing: -1,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              "Deleting your account is permanent. All stewardship data curated over the seasons will be irrecoverably removed from the Verdant Harvest ecosystem.",
+              style: TextStyle(
+                color: AppColors.textBody,
+                fontSize: 16,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 32),
+            // Cards List
+            const SecurityDataCard(
+              icon: Icons.history_edu,
+              title: "Historical Records",
+              description: "Five years of planting cycles, soil amendment logs, and harvest yields will be purged. Your digital legacy as a land steward cannot be restored.",
+              showWatermark: true,
+              isElevated: true,
+            ),
+            const SizedBox(height: 16),
+            const SecurityDataCard(
+              icon: Icons.visibility_outlined,
+              title: "Scouting Data",
+              description: "Pest monitoring, moisture readings, and satellite imagery overlays will be disconnected and deleted.",
+              color: AppColors.cardGrey1,
+            ),
+            const SizedBox(height: 16),
+            const SecurityDataCard(
+              icon: Icons.admin_panel_settings_outlined,
+              title: "Profile Assets",
+              description: "Personalized alerts, trusted collaborator permissions, and your professional farmer identity settings.",
+              color: AppColors.cardGrey2,
+            ),
+            const SizedBox(height: 48),
+            // Buttons
+            SizedBox(
+              width: double.infinity,
+              height: 64,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryGreen,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Keep My Account',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Icon(Icons.verified_user_outlined, color: Colors.white, size: 20),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Center(
+              child: TextButton(
+                onPressed: () {},
+                child: const Text(
+                  'Proceed with account deletion',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SecurityDataCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+  final Color? color;
+  final bool showWatermark;
+  final bool isElevated;
+
+  const SecurityDataCard({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.description,
+    this.color,
+    this.showWatermark = false,
+    this.isElevated = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: color ?? Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: isElevated 
+          ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))]
+          : null,
+      ),
+      child: Stack(
+        children: [
+          if (showWatermark)
+            Positioned(
+              right: -10,
+              bottom: -10,
+              child: Icon(
+                Icons.bolt,
+                size: 100,
+                color: Colors.grey.withOpacity(0.1),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.all(24.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                Text(stage, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Text(field, style: TextStyle(color: grey, fontSize: 12)),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(Icons.access_time, size: 14, color: accentGold),
-                    const SizedBox(width: 4),
-                    Text(time, style: TextStyle(color: accentGold, fontSize: 12)),
-                    const SizedBox(width: 10),
-                    Icon(Icons.location_on_outlined, size: 14, color: accentGold),
-                    const SizedBox(width: 4),
-                    Text("Geotagged", style: TextStyle(color: accentGold, fontSize: 12)),
-                  ],
+                Icon(icon, color: AppColors.primaryGreen, size: 28),
+                const SizedBox(height: 12),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryGreen,
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Text("96.6% Accuracy Rate", style: TextStyle(color: accuracyColor, fontSize: 12, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textBody,
+                    height: 1.4,
+                  ),
+                ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: Colors.white),
         ],
       ),
     );

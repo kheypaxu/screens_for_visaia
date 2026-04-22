@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sample/screens/view_income.dart'; // Ensure this matches your path
+import 'package:sample/screens/first_confirmation.dart'; // Ensure this matches your path
 
 void main() {
   runApp(const MyApp());
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       // Fix: Use the correct class name and remove 'const'
-      home: const CropFinanceScreen(), 
+      home: const VerdantHarvestApp(), 
     );
   }
 }
