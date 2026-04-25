@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const CroppingApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class CroppingApp extends StatelessWidget {
+  const CroppingApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,293 +15,417 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Inter',
         scaffoldBackgroundColor: const Color(0xFFF9FBFB),
       ),
-      home: const StartCroppingCycleScreen(),
+      home: const CroppingCyclesScreen(),
     );
   }
 }
 
-class StartCroppingCycleScreen extends StatelessWidget {
-  const StartCroppingCycleScreen({super.key});
+class CroppingCyclesScreen extends StatefulWidget {
+  const CroppingCyclesScreen({super.key});
+
+  @override
+  State<CroppingCyclesScreen> createState() => _CroppingCyclesScreenState();
+}
+
+class _CroppingCyclesScreenState extends State<CroppingCyclesScreen> {
+  // Logic to freeze the background scroll
+  bool _isOverlayActive = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: CircleAvatar(
-            backgroundColor: const Color(0xFFF0F2F2),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3132), size: 20),
-              onPressed: () {},
-            ),
-          ),
-        ),
-        centerTitle: true,
-        title: const Text(
-          'Start Cropping Cycle',
-          style: TextStyle(
-            color: Color(0xFF2D3132),
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+      resizeToAvoidBottomInset: false,
+      body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 20),
-            // REFINED STEP INDICATOR
-            const _StepIndicator(),
-            const SizedBox(height: 40),
-            // EXTRA BOLD HEADER
-            const Text(
-              'Configure Cycle',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.w900, // Extra Bold
-                color: Color(0xFF1A1C1E),
-                letterSpacing: -0.8,
-              ),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Set up the details for your next planting cycle. Choose the field you\'ll use and decide when planting and harvesting will happen.',
-              style: TextStyle(
-                fontSize: 15,
-                color: Color(0xFF5E6266),
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 24),
-            const _TargetLocationCard(),
-            const SizedBox(height: 20),
-            const _CycleParametersCard(),
-            const SizedBox(height: 120),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: Color(0xFFE8ECEF))),
-        ),
-        child: ElevatedButton(
-          onPressed: () {},
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF134E39),
-            minimumSize: const Size(double.infinity, 56),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(28),
-            ),
-            elevation: 0,
-          ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Save Cropping Cycle',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+            Expanded(
+              child: SingleChildScrollView(
+                // This prevents the background from moving when the dialog is up
+                physics: _isOverlayActive 
+                    ? const NeverScrollableScrollPhysics() 
+                    : const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Cropping Cycles',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF134E39),
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    _buildSearchBar(),
+                    const SizedBox(height: 24),
+                    _buildFilterRow(),
+                    const SizedBox(height: 24),
+                    CropCycleCard(
+                      title: 'Soybean Summer',
+                      subtitle: 'Field Block 4B • 120 Acres',
+                      progress: 0.65,
+                      harvestDate: 'Oct 12',
+                      statusText: 'High Moisture Risk',
+                      statusColor: const Color(0xFFC0392B),
+                      statusIcon: Icons.warning_rounded,
+                      progressColor: const Color(0xFF134E39),
+                      icon: Icons.grass,
+                      iconColor: const Color(0xFF134E39),
+                      onMenuTap: () => _showScreen2BottomSheet(context, 'Soybean Summer'),
+                    ),
+                    const SizedBox(height: 16),
+                    CropCycleCard(
+                      title: 'Soybean Delta',
+                      subtitle: 'River Tract 2 • 85 Acres',
+                      progress: 0.30,
+                      harvestDate: 'Nov 05',
+                      statusText: 'Optimal Conditions',
+                      statusColor: const Color(0xFF27AE60),
+                      statusIcon: Icons.check_circle,
+                      progressColor: const Color(0xFF134E39),
+                      icon: Icons.spa,
+                      iconColor: const Color(0xFF134E39),
+                      onMenuTap: () => _showScreen2BottomSheet(context, 'Soybean Delta'),
+                    ),
+                    const SizedBox(height: 16),
+                    CropCycleCard(
+                      title: 'Corn Hybrid X',
+                      subtitle: 'North Ridge • 210 Acres',
+                      progress: 0.85,
+                      harvestDate: 'Sep 28',
+                      statusText: 'Pest Alert Nearby',
+                      statusColor: const Color(0xFFEEB20C),
+                      statusIcon: Icons.warning_amber_rounded,
+                      progressColor: const Color(0xFFEEB20C),
+                      icon: Icons.eco,
+                      iconColor: const Color.fromARGB(255, 163, 112, 1),
+                      onMenuTap: () => _showScreen2BottomSheet(context, 'Corn Hybrid X'),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildActionButtons(),
+                    const SizedBox(height: 40),
+                  ],
                 ),
               ),
-              SizedBox(width: 8),
-              Icon(Icons.arrow_forward, color: Colors.white, size: 18),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
-}
 
-class _StepIndicator extends StatelessWidget {
-  const _StepIndicator();
+  Widget _buildSearchBar() {
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: const Row(
+        children: [
+          Icon(Icons.search, color: Color(0xFF5E6266), size: 24),
+          SizedBox(width: 12),
+          Text('Search fields or crops...', style: TextStyle(color: Color(0xFFA1A5A8), fontSize: 16)),
+        ],
+      ),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
+  Widget _buildFilterRow() {
+    return Row(
       children: [
-        Stack(
-          alignment: Alignment.center,
-          clipBehavior: Clip.none,
-          children: [
-            // Background Line
-            Container(
-              height: 3,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE8ECEF),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            // Progress Line (leading to middle)
-            Row(
+        Expanded(
+          child: Container(
+            height: 48,
+            decoration: BoxDecoration(color: const Color(0xFFF0F2F2), borderRadius: BorderRadius.circular(24)),
+            child: Row(
               children: [
+                const Expanded(child: Center(child: Text('Active', style: TextStyle(color: Color(0xFF5E6266), fontWeight: FontWeight.w600)))),
                 Expanded(
                   child: Container(
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF134E39),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const Expanded(child: SizedBox()),
-              ],
-            ),
-            // Circular Steps
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                // Step 1: Completed with shadow
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.12),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const CircleAvatar(
-                    radius: 18,
-                    backgroundColor: Color(0xFF134E39),
-                    child: Icon(Icons.check, color: Colors.white, size: 18),
-                  ),
-                ),
-                // Step 2: Active with Halo/Glow
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF134E39).withOpacity(0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF134E39),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 6,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: const Center(
-                      child: Text(
-                        '2',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
+                    margin: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+                    alignment: Alignment.center,
+                    child: const Text('Completed', style: TextStyle(color: Color(0xFF134E39), fontWeight: FontWeight.w700)),
                   ),
                 ),
               ],
             ),
-          ],
+          ),
         ),
-        const SizedBox(height: 12),
-        const Row(
-          children: [
-            Expanded(
-              child: Text(
-                'Farm & Field',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color(0xFF134E39),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            Expanded(
-              child: Text(
-                'Cycle Details',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color(0xFF134E39),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ],
+        const SizedBox(width: 12),
+        Container(
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: const Color(0xFFE8ECEF))),
+          child: const Row(
+            children: [
+              Icon(Icons.tune, size: 20, color: Color(0xFF1A1C1E)),
+              SizedBox(width: 8),
+              Text('Filters', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+            ],
+          ),
         ),
       ],
     );
   }
+
+  Widget _buildActionButtons() {
+    return Column(
+      children: [
+        _actionItem(icon: Icons.eco, title: 'Start New Cycle', subtitle: 'Monitor new cropping cycle', isPrimary: true),
+        const SizedBox(height: 16),
+        _actionItem(icon: Icons.shopping_basket_outlined, title: 'Record Previous Cycle', subtitle: 'Record yield and losses', isPrimary: false),
+      ],
+    );
+  }
+
+  Widget _actionItem({required IconData icon, required String title, required String subtitle, required bool isPrimary}) {
+    return Container(
+      height: 80,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        color: isPrimary ? const Color(0xFF134E39) : Colors.white,
+        borderRadius: BorderRadius.circular(40),
+        border: isPrimary ? null : Border.all(color: const Color(0xFFE8ECEF)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(color: isPrimary ? Colors.white.withOpacity(0.15) : const Color(0xFFF0F2F2), shape: BoxShape.circle),
+            child: Icon(icon, color: isPrimary ? Colors.white : const Color(0xFF134E39)),
+          ),
+          const SizedBox(width: 16),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: TextStyle(color: isPrimary ? Colors.white : const Color(0xFF134E39), fontSize: 18, fontWeight: FontWeight.w900)),
+              Text(subtitle, style: TextStyle(color: isPrimary ? Colors.white.withOpacity(0.7) : const Color(0xFF5E6266), fontSize: 14)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showScreen2BottomSheet(BuildContext context, String cropName) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      barrierColor: Colors.black.withOpacity(0.4),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(32))),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFE8ECEF), borderRadius: BorderRadius.circular(2))),
+              const SizedBox(height: 24),
+              _sheetTile(Icons.edit_outlined, 'Edit Cycle', const Color(0xFF134E39), () {}),
+              _sheetTile(Icons.share_outlined, 'Share Data', const Color(0xFF134E39), () {}),
+              const Divider(height: 32, color: Color(0xFFF0F2F2)),
+              _sheetTile(Icons.delete_outline_rounded, 'Delete Cycle', const Color(0xFFC0392B), () {
+                Navigator.pop(context); 
+                _showScreen3DeleteOverlay(context, cropName); 
+              }),
+              const SizedBox(height: 20),
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel', style: TextStyle(color: Color(0xFF5E6266), fontWeight: FontWeight.w600, fontSize: 16))),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _sheetTile(IconData icon, String label, Color color, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon, color: color),
+      title: Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 16)),
+      onTap: onTap,
+      contentPadding: EdgeInsets.zero,
+    );
+  }
+
+  void _showScreen3DeleteOverlay(BuildContext context, String cropName) {
+    setState(() => _isOverlayActive = true); // Lock the background scroll
+
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.6),
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: const BoxDecoration(color: Color(0xFFFFE5E5), shape: BoxShape.circle),
+                  child: const Icon(Icons.delete_outline_rounded, color: Color(0xFFC0392B), size: 40),
+                ),
+                const SizedBox(height: 24),
+                const Text('Delete Cropping Cycle?', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF1A1C1E))),
+                const SizedBox(height: 16),
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: const TextStyle(fontSize: 15, color: Color(0xFF5E6266), height: 1.5, fontFamily: 'Inter'),
+                    children: [
+                      const TextSpan(text: 'Are you sure you want to delete\n'),
+                      TextSpan(
+                        text: cropName,
+                        style: const TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF1A1C1E)),
+                      ),
+                      const TextSpan(text: '? This action cannot be undone and all records will be removed.'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFC0392B), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)), elevation: 0),
+                    onPressed: () {
+                      setState(() => _isOverlayActive = false);
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Delete', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: TextButton(
+                    style: TextButton.styleFrom(backgroundColor: const Color(0xFFF0F2F2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28))),
+                    onPressed: () {
+                      setState(() => _isOverlayActive = false);
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Cancel', style: TextStyle(color: Color(0xFF1A1C1E), fontWeight: FontWeight.w800)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        );
+      },
+    ).then((_) {
+      // Ensure scroll is unlocked even if dialog is dismissed via other means
+      if (mounted) setState(() => _isOverlayActive = false);
+    });
+  }
 }
 
-class _TargetLocationCard extends StatelessWidget {
-  const _TargetLocationCard();
+class CropCycleCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final double progress;
+  final String harvestDate;
+  final String statusText;
+  final Color statusColor;
+  final IconData statusIcon;
+  final Color progressColor;
+  final IconData icon;
+  final Color iconColor;
+  final VoidCallback onMenuTap;
+
+  const CropCycleCard({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.progress,
+    required this.harvestDate,
+    required this.statusText,
+    required this.statusColor,
+    required this.statusIcon,
+    required this.progressColor,
+    required this.icon,
+    required this.iconColor,
+    required this.onMenuTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 15, offset: const Offset(0, 6))],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Target Location',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Icon(Icons.location_on_outlined, color: Color(0xFF134E39)),
-            ],
-          ),
-          const SizedBox(height: 20),
-          const Text('Select Farm', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF5E6266))),
-          const SizedBox(height: 8),
-          _buildDropdown('North Valley Estate'),
-          const SizedBox(height: 20),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Stack(
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.network(
-                  'https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1000',
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-                Positioned(
-                  top: 40,
-                  left: 80,
-                  child: Transform.rotate(
-                    angle: -0.4,
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF134E39).withOpacity(0.4),
-                        border: Border.all(color: Colors.white, width: 2),
-                        borderRadius: BorderRadius.circular(8),
+                Row(
+                  children: [
+                    CircleAvatar(radius: 26, backgroundColor: const Color(0xFFF0F2F2), child: Icon(icon, color: iconColor, size: 28)),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(title, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w900, color: Color(0xFF1A1C1E))),
+                          Text(subtitle, style: const TextStyle(fontSize: 14, color: Color(0xFF5E6266), fontWeight: FontWeight.w500)),
+                        ],
                       ),
-                      child: const Text('SELECTED', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                     ),
-                  ),
+                    IconButton(icon: const Icon(Icons.more_vert, color: Color(0xFF1A1C1E)), onPressed: onMenuTap),
+                  ],
                 ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('PROGRESS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Color(0xFF5E6266), letterSpacing: 1.0)),
+                    Text('${(progress * 100).toInt()}%', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: progressColor)),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Stack(
+                  children: [
+                    Container(height: 8, decoration: BoxDecoration(color: const Color(0xFFE8ECEF), borderRadius: BorderRadius.circular(4))),
+                    FractionallySizedBox(
+                      widthFactor: progress,
+                      child: Container(height: 8, decoration: BoxDecoration(color: progressColor, borderRadius: BorderRadius.circular(4))),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Text('Est. Harvest: $harvestDate', style: const TextStyle(fontSize: 13, color: Color(0xFF5E6266), fontWeight: FontWeight.w500)),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: const BoxDecoration(color: Color(0xFFF4F6F6), borderRadius: BorderRadius.vertical(bottom: Radius.circular(28))),
+            child: Row(
+              children: [
+                Icon(statusIcon, size: 18, color: statusColor),
+                const SizedBox(width: 10),
+                Expanded(child: Text(statusText, style: TextStyle(fontSize: 14, color: statusColor, fontWeight: FontWeight.w700))),
+                const Icon(Icons.arrow_forward, size: 18, color: Color(0xFF5E6266)),
               ],
             ),
           ),
@@ -309,97 +433,4 @@ class _TargetLocationCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildDropdown(String value) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0F2F2),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: value,
-          isExpanded: true,
-          icon: const Icon(Icons.expand_more),
-          items: [value].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-          onChanged: (_) {},
-        ),
-      ),
-    );
-  }
-}
-
-class _CycleParametersCard extends StatelessWidget {
-  const _CycleParametersCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Cycle Parameters', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
-          _buildFieldLabel('Cycle Name / Identifier'),
-          _buildInput('e.g. Winter Wheat \'24'),
-          const SizedBox(height: 16),
-          _buildFieldLabel('Crop Variety'),
-          _buildDropdownInput('Select Variety'),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_buildFieldLabel('Est. Planting'), _buildInput('mm/dd/yyyy')])),
-              const SizedBox(width: 12),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [_buildFieldLabel('Est. Harvest'), _buildInput('mm/dd/yyyy')])),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildFieldLabel('Target Seed Density'),
-          Row(
-            children: [
-              Expanded(flex: 2, child: _buildInput('1.2')),
-              const SizedBox(width: 12),
-              Expanded(
-                flex: 1,
-                child: Container(
-                  height: 52,
-                  decoration: BoxDecoration(color: const Color(0xFFF0F2F2), borderRadius: BorderRadius.circular(26)),
-                  child: const Center(child: Text('M seeds/ha', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFieldLabel(String label) => Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
-        child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF5E6266))),
-      );
-
-  Widget _buildInput(String hint) => TextField(
-        decoration: InputDecoration(
-          hintText: hint,
-          filled: true,
-          fillColor: const Color(0xFFF0F2F2),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        ),
-      );
-
-  Widget _buildDropdownInput(String hint) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(color: const Color(0xFFF0F2F2), borderRadius: BorderRadius.circular(12)),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton(hint: Text(hint), isExpanded: true, icon: const Icon(Icons.expand_more), items: const [], onChanged: (_) {}),
-        ),
-      );
 }

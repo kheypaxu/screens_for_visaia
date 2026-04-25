@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sample/screens/start_cropping_cycle.dart';
-
+import 'package:sample/screens/harvest_recording.dart';
 void main() {
-  runApp(const MyApp());
+  runApp(const MaterialApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -20,7 +19,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       // Fix: Use the correct class name and remove 'const'
-      home: const StartCroppingCycleScreen()
+      home: const HarvestRecordingScreen()
     );
   }
 }
